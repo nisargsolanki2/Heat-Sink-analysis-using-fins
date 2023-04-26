@@ -1,0 +1,28 @@
+clear all;
+clc;
+close all;
+% Assuming the model to be steady state
+tmodel = createpde('thermal', 'steadystate');
+% Importing CAD file
+importGeometry(tmodel, 'Tapered Fin.stl');
+% Naming the faces of the CAD model
+pdegplot(tmodel, 'FaceLabels', 'on', 'FaceAlpha', 0.5);
+% Generating Mesh of the model
+msh = generateMesh(tmodel, 'Hmax', 1);
+%Material Properties
+kappa = 20000; % in W/m/K
+% Defining thermalconductivity
+thermalProperties(tmodel, 'ThermalConductivity', kappa);
+% Defining Boundary Condition
+thermalBC(tmodel, 'face', 1, 'Temperature', 300);
+thermalBC(tmodel, 'face', 6, 'ConvectionCoefficient', 50, 'AmbientTemperature', 25);
+thermalBC(tmodel, 'face', 3, 'ConvectionCoefficient', 30, 'AmbientTemperature', 25);
+thermalBC(tmodel, 'face', [4 5], 'ConvectionCoefficient', 40, 'AmbientTemperature', 25);
+% Solving the Model for given condition
+Rt=solve(tmodel);
+% Ploting the model with different countour
+pdeplot3D(tmodel, 'ColorMapData', Rt.Temperature)
+xlabel('X-Axis')
+xlabel('Y-Axis')
+xlabel('Z-Axis')
+title('Heat Transfer through Tapered Fins')
